@@ -62,25 +62,6 @@ func (s *SQLiteStorage) RemoveBlogSite(id int) error {
 	return err
 }
 
-func (s *SQLiteStorage) ListBlogSites() ([]models.BlogSite, error) {
-	rows, err := s.db.Query("SELECT id, url, title_selector, time_selector, time_layout FROM blog_sites")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var sites []models.BlogSite
-	for rows.Next() {
-		var site models.BlogSite
-		if err := rows.Scan(&site.ID, &site.URL, &site.TitleSelector, &site.TimeSelector, &site.TimeLayout); err != nil {
-			return nil, err
-		}
-		sites = append(sites, site)
-	}
-
-	return sites, nil
-}
-
 func (s *SQLiteStorage) AddBlogPost(post models.BlogPost) error {
 	_, err := s.db.Exec(`
 		INSERT INTO blog_posts (blog_id, url, title, post_time, created_at)
@@ -105,4 +86,22 @@ func (s *SQLiteStorage) GetBlogSites() ([]models.BlogSite, error) {
 		sites = append(sites, site)
 	}
 	return sites, nil
+}
+
+func (s *SQLiteStorage) GetBlogPosts() ([]models.BlogPost, error) {
+	rows, err := s.db.Query("SELECT id, url, title, post_time, created_at FROM blog_posts")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []models.BlogPost
+	for rows.Next() {
+		var post models.BlogPost
+		if err := rows.Scan(&post.ID, &post.URL, &post.Title, &post.PostTime, &post.CreatedAt); err != nil {
+			return nil, err
+		}
+		posts = append(posts, post)
+	}
+	return posts, nil
 }

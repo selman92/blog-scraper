@@ -13,6 +13,7 @@ func SetupRoutes(r *gin.Engine, store storage.Storage) {
 	r.POST("/blog-sites", addBlogSite(store))
 	r.DELETE("/blog-sites/:id", removeBlogSite(store))
 	r.GET("/blog-sites", listBlogSites(store))
+	r.GET("/blog-posts", listBlogPosts(store))
 }
 
 func addBlogSite(store storage.Storage) gin.HandlerFunc {
@@ -52,12 +53,24 @@ func removeBlogSite(store storage.Storage) gin.HandlerFunc {
 
 func listBlogSites(store storage.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sites, err := store.ListBlogSites()
+		sites, err := store.GetBlogSites()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list blog sites"})
 			return
 		}
 
 		c.JSON(http.StatusOK, sites)
+	}
+}
+
+func listBlogPosts(store storage.Storage) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		posts, err := store.GetBlogPosts()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list blog sites: " + err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, posts)
 	}
 }
