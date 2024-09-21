@@ -1,7 +1,9 @@
 package crawler
 
 import (
+	"fmt"
 	"log"
+	"net/url"
 	"sync"
 	"time"
 
@@ -45,8 +47,15 @@ func (c *Crawler) Start() {
 }
 
 func (c *Crawler) crawlSite(site models.BlogSite) {
+	uri, err := url.Parse(site.URL)
+
+	if err != nil {
+		fmt.Println("Error parsing site URL: " + site.URL)
+		return
+	}
+
 	collector := colly.NewCollector(
-		colly.AllowedDomains(site.URL),
+		colly.AllowedDomains(uri.Host),
 		colly.MaxDepth(2),
 	)
 
@@ -79,7 +88,7 @@ func (c *Crawler) crawlSite(site models.BlogSite) {
 		}
 	})
 
-	err := collector.Visit(site.URL)
+	err = collector.Visit(site.URL)
 	if err != nil {
 		log.Printf("Error visiting %s: %v", site.URL, err)
 	}

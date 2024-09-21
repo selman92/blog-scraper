@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/selman92/blog-scraper/internal/api"
 	"github.com/selman92/blog-scraper/internal/storage"
+	"github.com/selman92/blog-scraper/pkg/crawler"
 )
 
 func main() {
@@ -13,6 +14,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize storage: %v", err)
 	}
+
+	crawler := crawler.NewCrawler(store)
+	go crawler.Start()
 
 	r := gin.Default()
 	api.SetupRoutes(r, store)
