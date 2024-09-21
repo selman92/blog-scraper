@@ -24,9 +24,14 @@ func NewSQLiteStorage(dbPath string) (*SQLiteStorage, error) {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			url TEXT NOT NULL,
 			title_selector TEXT NOT NULL,
-			time_selector TEXT NOT NULL
+			time_selector TEXT NOT NULL,
+			time_layout TEXT NOT NULL
 		)
 	`)
+
+	if err != nil {
+		return nil, err
+	}
 
 	_, err = db.Exec(`
 	CREATE TABLE IF NOT EXISTS blog_posts (
@@ -47,8 +52,8 @@ func NewSQLiteStorage(dbPath string) (*SQLiteStorage, error) {
 }
 
 func (s *SQLiteStorage) AddBlogSite(site models.BlogSite) error {
-	_, err := s.db.Exec("INSERT INTO blog_sites (url, title_selector, time_selector) VALUES (?, ?, ?)",
-		site.URL, site.TitleSelector, site.TimeSelector)
+	_, err := s.db.Exec("INSERT INTO blog_sites (url, title_selector, time_selector, time_layout) VALUES (?, ?, ?, ?)",
+		site.URL, site.TitleSelector, site.TimeSelector, site.TimeLayout)
 	return err
 }
 
@@ -58,7 +63,7 @@ func (s *SQLiteStorage) RemoveBlogSite(id int) error {
 }
 
 func (s *SQLiteStorage) ListBlogSites() ([]models.BlogSite, error) {
-	rows, err := s.db.Query("SELECT id, url, title_selector, time_selector FROM blog_sites")
+	rows, err := s.db.Query("SELECT id, url, title_selector, time_selector, time_layout FROM blog_sites")
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +72,7 @@ func (s *SQLiteStorage) ListBlogSites() ([]models.BlogSite, error) {
 	var sites []models.BlogSite
 	for rows.Next() {
 		var site models.BlogSite
-		if err := rows.Scan(&site.ID, &site.URL, &site.TitleSelector, &site.TimeSelector); err != nil {
+		if err := rows.Scan(&site.ID, &site.URL, &site.TitleSelector, &site.TimeSelector, &site.TimeLayout); err != nil {
 			return nil, err
 		}
 		sites = append(sites, site)
@@ -85,7 +90,7 @@ func (s *SQLiteStorage) AddBlogPost(post models.BlogPost) error {
 }
 
 func (s *SQLiteStorage) GetBlogSites() ([]models.BlogSite, error) {
-	rows, err := s.db.Query("SELECT id, url, title_selector, time_selector FROM blog_sites")
+	rows, err := s.db.Query("SELECT id, url, title_selector, time_selector, time_layout FROM blog_sites")
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +99,7 @@ func (s *SQLiteStorage) GetBlogSites() ([]models.BlogSite, error) {
 	var sites []models.BlogSite
 	for rows.Next() {
 		var site models.BlogSite
-		if err := rows.Scan(&site.ID, &site.URL, &site.TitleSelector, &site.TimeSelector); err != nil {
+		if err := rows.Scan(&site.ID, &site.URL, &site.TitleSelector, &site.TimeSelector, &site.TimeLayout); err != nil {
 			return nil, err
 		}
 		sites = append(sites, site)

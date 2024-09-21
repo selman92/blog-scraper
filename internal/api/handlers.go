@@ -24,7 +24,7 @@ func addBlogSite(store storage.Storage) gin.HandlerFunc {
 		}
 
 		if err := store.AddBlogSite(site); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add blog site"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add blog site: " + err.Error()})
 			return
 		}
 

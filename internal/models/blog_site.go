@@ -5,4 +5,5 @@ type BlogSite struct {
 	URL           string `json:"url"`
 	TitleSelector string `json:"title_selector"`
 	TimeSelector  string `json:"time_selector"`
+	TimeLayout    string `json:"time_layout"`
 }

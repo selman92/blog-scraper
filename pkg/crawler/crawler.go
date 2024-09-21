@@ -64,9 +64,16 @@ func (c *Crawler) crawlSite(site models.BlogSite) {
 	})
 
 	collector.OnHTML("body", func(e *colly.HTMLElement) {
+
+		titleElements := e.DOM.Find(site.TitleSelector)
+		if titleElements.Length() != 1 {
+			log.Printf("Skipping page %s: Title selector found %d times (expected 1)", e.Request.URL, titleElements.Length())
+			return
+		}
+
 		title := e.ChildText(site.TitleSelector)
 		timeStr := e.ChildText(site.TimeSelector)
-		postTime, err := time.Parse(time.RFC3339, timeStr)
+		postTime, err := time.Parse(site.TimeLayout, timeStr)
 		if err != nil {
 			log.Printf("Error parsing time for %s: %v", e.Request.URL, err)
 			return
