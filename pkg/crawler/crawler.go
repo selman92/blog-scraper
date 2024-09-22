@@ -42,7 +42,8 @@ func (c *Crawler) Start() {
 		}
 		wg.Wait()
 
-		time.Sleep(time.Second * 5)
+		log.Printf("Crawling all sites finished, waiting for next cycle")
+		time.Sleep(time.Second * 10)
 	}
 }
 
@@ -56,8 +57,11 @@ func (c *Crawler) crawlSite(site models.BlogSite) {
 
 	collector := colly.NewCollector(
 		colly.AllowedDomains(uri.Host),
-		colly.MaxDepth(2),
+		colly.MaxDepth(5),
+		colly.CacheDir("requests"),
 	)
+
+	collector.AllowURLRevisit = false
 
 	collector.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		e.Request.Visit(e.Attr("href"))
@@ -67,7 +71,7 @@ func (c *Crawler) crawlSite(site models.BlogSite) {
 
 		titleElements := e.DOM.Find(site.TitleSelector)
 		if titleElements.Length() != 1 {
-			log.Printf("Skipping page %s: Title selector found %d times (expected 1)", e.Request.URL, titleElements.Length())
+			//log.Printf("Skipping page %s: Title selector found %d times (expected 1)", e.Request.URL, titleElements.Length())
 			return
 		}
 
@@ -98,5 +102,7 @@ func (c *Crawler) crawlSite(site models.BlogSite) {
 	err = collector.Visit(site.URL)
 	if err != nil {
 		log.Printf("Error visiting %s: %v", site.URL, err)
+	} else {
+		log.Printf("Finished crawling %s", site.URL)
 	}
 }
