@@ -22,10 +22,11 @@ func NewSQLiteStorage(dbPath string) (*SQLiteStorage, error) {
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS blog_sites (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			url TEXT NOT NULL,
+			url TEXT NOT NULL UNIQUE,
 			title_selector TEXT NOT NULL,
 			time_selector TEXT NOT NULL,
-			time_layout TEXT NOT NULL
+			time_layout TEXT NOT NULL,
+			last_crawled DATETIME
 		)
 	`)
 
@@ -37,7 +38,7 @@ func NewSQLiteStorage(dbPath string) (*SQLiteStorage, error) {
 	CREATE TABLE IF NOT EXISTS blog_posts (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		blog_id INTEGER,
-		url TEXT NOT NULL,
+		url TEXT NOT NULL UNIQUE,
 		title TEXT NOT NULL,
 		post_time DATETIME,
 		created_at DATETIME,
@@ -67,6 +68,7 @@ func (s *SQLiteStorage) AddBlogPost(post models.BlogPost) error {
 		INSERT INTO blog_posts (blog_id, url, title, post_time, created_at)
 		VALUES (?, ?, ?, ?, ?)
 	`, post.BlogID, post.URL, post.Title, post.PostTime, time.Now())
+
 	return err
 }
 
